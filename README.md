@@ -1,0 +1,2 @@
+# PoeticAI
+AI poetry generator
