@@ -6,10 +6,9 @@ Inspired by [AI for Fun: Làm thơ cùng AI](https://tiensu.github.io/blog/84_ma
 
 - First, you need to set up [Python environment in VS Code](https://code.visualstudio.com/docs/python/environments)
 
-- Next, inside the Python environment of your choice that you've set up in VS Code, install project dependencies specified in the `requirements.txt` file by running this command:
-    ```
-    pip3 install -r requirements.txt
-    ```
+- Make sure you use __Python 3.6 - 3.9__ as for now, TensorFlow has not officially supported newer versions of Python.
+
+- Next, inside the Python environment of your choice that you've set up in VS Code, install project dependencies specified in the `requirements.txt` file.
 
 ## Other helpful commands
 
