@@ -1,6 +1,9 @@
 import string
 import requests
 
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
 class Dataset():
     def __init__(self):
         self.dataPath = None
@@ -103,6 +106,24 @@ class Dataset():
         self.target_sentences = ['start ' + ts + ' end' for ts in self.target_sentences]
 
         return self.input_sentences, self.target_sentences
+    
+    def build_tokenizer(self, sentences, max_words=10000):
+        """
+        Build tokenizer for input and target sequences
+        """
+        tokenizer = Tokenizer(num_words=max_words, oov_token='OOV')
+        tokenizer.fit_on_texts(sentences)
+
+        return tokenizer
+    
+    def tokenize(self, tokenizer, sentences, padding='pre'):
+        """
+        Tokenize sentences
+        """
+        sequences = tokenizer.texts_to_sequences(sentences)
+        max_len_sequences = max([len(seq) for seq in sequences])
+        padded_sequences = pad_sequences(sequences, maxlen=max_len_sequences, padding=padding)
+        return padded_sequences
 
 #################
 
@@ -115,3 +136,9 @@ cleaned_data = dataset.clean_data()
 input_sentences, target_sentences = dataset.split_data()
 # print(input_sentences[:20])
 # print(target_sentences[:20])
+input_tokenizer, target_tokenizer = dataset.build_tokenizer(input_sentences), dataset.build_tokenizer(target_sentences)
+# print(input_tokenizer.word_index)
+# print(target_tokenizer.word_index)
+input_sequences, target_sequences = dataset.tokenize(input_tokenizer, input_sentences), dataset.tokenize(target_tokenizer, target_sentences)
+print(input_sequences[:10])
+print(target_sequences[:10])
