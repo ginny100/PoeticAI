@@ -1,4 +1,5 @@
 import string
+import numpy as np
 import requests
 
 from tensorflow.keras.preprocessing.text import Tokenizer
@@ -10,6 +11,9 @@ class Dataset():
         self.data_list = None
         self.input_sentences = []
         self.target_sentences = []
+        self.encoder_input_data = []
+        self.decoder_input_data = []
+        self.decoder_target_data = []
 
     def download(self, url):
         """
@@ -40,9 +44,9 @@ class Dataset():
             with open(self.dataPath, 'r', encoding='utf-8') as f:
                 data = f.read()
             
-            # separate data sentence by sentence and remove blank sentences
+            # Separate data sentence by sentence and remove blank sentences
             self.data_list = [line for line in data.split('\n') if line != '']
-            # display 10 first sentences
+            # Display 10 first sentences
             # print(data_list[:10])
             return self.data_list
         
@@ -107,14 +111,22 @@ class Dataset():
 
         return self.input_sentences, self.target_sentences
     
-    def build_tokenizer(self, sentences, max_words=10000):
+    def build_tokenizer(self, sentences):
         """
         Build tokenizer for input and target sequences
         """
-        tokenizer = Tokenizer(num_words=max_words, oov_token='OOV')
+        # Prepare the tokenizer
+        tokenizer = Tokenizer()
         tokenizer.fit_on_texts(sentences)
+        # Determine the vocabulary size
+        vocab_size = len(tokenizer.word_index) + 1
+        print('Vocabulary size: %d' % vocab_size)
+        # Create word2index dictionary
+        word2index = tokenizer.word_index
+        # Create index2word dictionary
+        index2word = tokenizer.index_word
 
-        return tokenizer
+        return tokenizer, word2index, index2word
     
     def tokenize(self, tokenizer, sentences, padding='pre'):
         """
@@ -123,7 +135,32 @@ class Dataset():
         sequences = tokenizer.texts_to_sequences(sentences)
         max_len_sequences = max([len(seq) for seq in sequences])
         padded_sequences = pad_sequences(sequences, maxlen=max_len_sequences, padding=padding)
-        return padded_sequences
+        return padded_sequences, max_len_sequences
+    
+    def create_outputs(self, input_word2index, target_word2index, max_len_input_seq=100, max_len_target_seq=100):
+        """
+        Create Encoder Input, Decoder Input, and Decoder Output
+        """
+        target_vocab_size = len(target_word2index) + 1
+
+        self.encoder_input_data = np.zeros((len(self.input_sentences), max_len_input_seq), dtype='float32')
+        # print(self.encoder_input_data.shape)
+        self.decoder_input_data = np.zeros((len(self.input_sentences), max_len_target_seq), dtype='float32')
+        # print(self.decoder_input_data.shape)
+        self.decoder_target_data = np.zeros((len(self.input_sentences), max_len_target_seq, target_vocab_size), dtype='float32')
+        # print(self.decoder_target_data.shape)
+
+        for i, (input_text, target_text) in enumerate(zip(self.input_sentences, self.target_sentences)):
+            for t, word in enumerate(input_text.split()):
+                self.encoder_input_data[i, t] = input_word2index[word]
+            for t, word in enumerate(target_text.split()):
+                # decoder_target_data is ahead of decoder_input_data by one timestep
+                self.decoder_input_data[i, t] = target_word2index[word]
+                if t > 0:
+                    # decoder_target_data will be ahead by one timestep and will not include the start character.
+                    self.decoder_target_data[i, t - 1, target_word2index[word]] = 1
+        
+        return self.encoder_input_data, self.decoder_input_data, self.decoder_target_data
 
 #################
 
@@ -136,9 +173,20 @@ cleaned_data = dataset.clean_data()
 input_sentences, target_sentences = dataset.split_data()
 # print(input_sentences[:20])
 # print(target_sentences[:20])
-input_tokenizer, target_tokenizer = dataset.build_tokenizer(input_sentences), dataset.build_tokenizer(target_sentences)
+input_tokenizer, input_word2index, input_index2word = dataset.build_tokenizer(input_sentences)
+target_tokenizer, target_word2index, target_index2word= dataset.build_tokenizer(target_sentences)
 # print(input_tokenizer.word_index)
 # print(target_tokenizer.word_index)
-input_sequences, target_sequences = dataset.tokenize(input_tokenizer, input_sentences), dataset.tokenize(target_tokenizer, target_sentences)
-print(input_sequences[:10])
-print(target_sequences[:10])
+# print(input_word2index)
+# print(target_word2index)
+input_sequences, max_len_input_seq = dataset.tokenize(input_tokenizer, input_sentences)
+target_sequences, max_len_target_seq = dataset.tokenize(target_tokenizer, target_sentences)
+# print(input_sequences[:10])
+# print(target_sequences[:10])
+encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_outputs(input_word2index, target_word2index, max_len_input_seq, max_len_target_seq)
+print("Encoder Input Data:")
+print(encoder_input_data)
+print("Decoder Input Data:")
+print(decoder_input_data)
+print("Decoder Target Data:")
+print(decoder_target_data)
