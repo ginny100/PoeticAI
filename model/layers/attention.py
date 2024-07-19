@@ -1,8 +1,9 @@
 import tensorflow as tf
 
+from tensorflow.keras.layers import Layer # type: ignore
 from tensorflow.python.ops import math_ops
 
-class BahdanauAttention(tf.Keras.layers.Layer):
+class BahdanauAttention(Layer):
     def __init__(self, units):
         super().__init__()
         self.W1 = tf.keras.layers.Dense(units, use_bias=False)
