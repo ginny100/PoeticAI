@@ -1,5 +1,5 @@
 from data import Dataset
-from model import RNN
+from model.rnn.model import RNN
 
 print("Step 1: Loading data...")
 

@@ -1,2 +1,2 @@
-from rnn.model import RNN
-from bidirectional.model import Bidirectional
+from model.rnn.model import RNN
+from model.bidirectional.model import Bidirectional
