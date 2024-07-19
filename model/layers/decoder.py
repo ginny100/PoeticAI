@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from tensorflow.keras.layers import Layer, Embedding, GRU # type: ignore
 from model.layers.attention import BahdanauAttention
 

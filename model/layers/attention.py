@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 from tensorflow.python.ops import math_ops
 
 class BahdanauAttention(tf.Keras.layers.Layer):
