@@ -161,3 +161,4 @@ class Dataset():
                     self.decoder_target_data[i, t - 1, target_word2index[word]] = 1
         
         return self.encoder_input_data, self.decoder_input_data, self.decoder_target_data
+    
