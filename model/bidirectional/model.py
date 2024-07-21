@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import LSTM # type: ignore
+from model.layer import LSTM
 
 class Bidirectional(tf.keras.Model):
     def __init__(self, units, embedding_size, vocab_size, input_length):

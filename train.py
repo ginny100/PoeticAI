@@ -1,5 +1,7 @@
 from data import Dataset
 from model import RNN
+from model import Bidirectional
+from model import Seq2Seq
 
 print("Step 1: Loading data...")
 
@@ -32,3 +34,7 @@ encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_out
 
 print("Step 2: Training model...")
 
+print("Seq2Seq Model:")
+mySeq2Seq = Seq2Seq(input_tokenizer, target_tokenizer, 256, 256)
+mySeq2Seq.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
+mySeq2Seq.fit([encoder_input_data, decoder_input_data], decoder_target_data, batch_size=64, epochs=10, validation_split=0.2)
