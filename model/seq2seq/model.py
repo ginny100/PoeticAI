@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from model.layers import Decoder
-from model.layers import Encoder
+from model.layer import Decoder
+from model.layer import Encoder
 
 class Seq2Seq(tf.Keras.Model):
     def __init__(self, input_text_processor, output_text_processor, embedding_dim, units):
