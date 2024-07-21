@@ -13,6 +13,7 @@ class Dataset():
         self.target_sentences = []
         self.encoder_input_data = []
         self.decoder_input_data = []
+
         self.decoder_target_data = []
 
     def download(self, url):
@@ -126,15 +127,20 @@ class Dataset():
         # Create index2word dictionary
         index2word = tokenizer.index_word
 
-        return tokenizer, word2index, index2word
+        return tokenizer, vocab_size, word2index, index2word
     
-    def tokenize(self, tokenizer, sentences, padding='pre'):
+    def max_len(self, tokenizer, sentences):
+        sequences = tokenizer.texts_to_sequences(sentences)
+        max_len_sequences = max([len(seq) for seq in sequences])
+        return max_len_sequences
+    
+    def tokenize(self, tokenizer, max_len, sentences, padding='post'):
         """
         Tokenize sentences
         """
         sequences = tokenizer.texts_to_sequences(sentences)
         max_len_sequences = max([len(seq) for seq in sequences])
-        padded_sequences = pad_sequences(sequences, maxlen=max_len_sequences, padding=padding)
+        padded_sequences = pad_sequences(sequences, maxlen=max_len, padding=padding)
         return padded_sequences, max_len_sequences
     
     def create_outputs(self, input_word2index, target_word2index, max_len_input_seq=100, max_len_target_seq=100):
@@ -161,3 +167,41 @@ class Dataset():
                     self.decoder_target_data[i, t - 1, target_word2index[word]] = 1
         
         return self.encoder_input_data, self.decoder_input_data, self.decoder_target_data
+    
+    def generate_poem(input_text):
+        
+        input_sequence = tokenizer.texts_to_sequences([input_text])
+        input_sequence = pad_sequences(input_sequence, maxlen=max_seq_length, padding='post')
+        
+        output_sequence = [start_token]
+        for _ in range(max_seq_length - 1):
+            padded_output_sequence = pad_sequences([output_sequence], maxlen=max_seq_length, padding='post')
+            
+            predictions = model.predict([input_sequence, padded_output_sequence])
+            predicted_id = np.argmax(predictions[0, len(output_sequence) - 1])
+            
+            if predicted_id == end_token:
+                break
+            
+            output_sequence.append(predicted_id)
+        
+        # Ensure start and end tokens are removed from the output text
+        output_sequence = [id for id in output_sequence if id not in [start_token, end_token]]
+        
+        output_text = ' '.join([tokenizer.index_word.get(id, '') for id in output_sequence])
+        return output_text.strip()
+    
+    def add_special_tokens(self, tokenizer, target_sequences):
+        start_token = tokenizer.word_index['<start>'] if '<start>' in tokenizer.word_index else len(tokenizer.word_index) + 1
+        end_token = tokenizer.word_index['<end>'] if '<end>' in tokenizer.word_index else len(tokenizer.word_index) + 2
+
+        if '<start>' not in tokenizer.word_index:
+            tokenizer.word_index['<start>'] = start_token
+            tokenizer.index_word[start_token] = '<start>'
+        
+        if '<end>' not in tokenizer.word_index:
+            tokenizer.word_index['<end>'] = end_token
+            tokenizer.index_word[end_token] = '<end>'
+
+        target_sequences = [[start_token] + seq + [end_token] for seq in target_sequences]
+        return target_sequences
