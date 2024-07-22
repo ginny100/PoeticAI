@@ -1,15 +1,17 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Layer, Embedding, GRU # type: ignore
+from tensorflow.keras.layers import Layer, Embedding, LSTM # type: ignore
 
 class Encoder(Layer):
-    def __init__(self, input_vocab_size, embedding_dim, enc_units):
+    def __init__(self, encoder_input, input_vocab_size, latent_dim):
         super(Encoder, self).__init__()
-        self.enc_units = enc_units
-        self.input_lang_embedding = Embedding(input_vocab_size, embedding_dim)
-        self.gru = GRU(self.enc_units, return_sequences=True, return_state=True, recurrent_initializer='glorot_uniform')
+        self.encoder_emb = Embedding(input_vocab_size, latent_dim, trainable=True)(encoder_input) # Encoder
+        self.encoder_lstm1 = LSTM(latent_dim,return_sequences=True,return_state=True) # LSTM 1 
+        self.encoder_lstm2 = LSTM(latent_dim,return_sequences=True,return_state=True) # LSTM 2 
+        self.encoder_lstm3 = LSTM(latent_dim, return_state=True, return_sequences=True) # LSTM 3
 
-    def call(self, word_indices):
-        word_embeddings = self.input_lang_embedding(word_indices)
-        whole_sequence_output, final_state = self.gru(word_embeddings)
-        return whole_sequence_output, final_state
+    def call(self):
+        encoder_output1, _, _ = self.encoder_lstm1(self.encoder_emb)
+        encoder_output2, _, _ = self.encoder_lstm2(encoder_output1)
+        encoder_outputs, state_h, state_c = self.encoder_lstm3(encoder_output2) 
+        return encoder_outputs, state_h, state_c

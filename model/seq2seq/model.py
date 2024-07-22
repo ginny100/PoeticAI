@@ -2,34 +2,25 @@ import tensorflow as tf
 
 from model.layer import Decoder
 from model.layer import Encoder
+from tensorflow.keras.layers import Attention, Concatenate, TimeDistributed, Dense, Input # type: ignore
+from tensorflow.keras.models import Model # type: ignore
 
-class Seq2Seq(tf.Keras.Model):
-    def __init__(self, input_text_processor, output_text_processor, embedding_dim, units):
+class Seq2Seq(tf.keras.Model):
+    def __init__(self, max_len_input_seq, input_vocab_size, target_vocab_size, latent_dim=50):
         super(Seq2Seq, self).__init__()
-        self.encoder = Encoder(input_text_processor.vocabulary_size(), embedding_dim, units)
-        self.decoder = Decoder(output_text_processor.vocabulary_size(), embedding_dim, units)
-        self.input_text_processor = input_text_processor
-        self.output_text_processor = output_text_processor
-    
-    @tf.function
-    def train_step(self, data):
-        input_sentence, output_sentence = data
-        input_word_indices = self.input_text_processor(input_sentence)
-        output_word_indices = self.output_text_processor(output_sentence)
-        output_mask = tf.cast(output_word_indices!=0, tf.float32)
-        
-        with tf.GradientTape() as tape:
-            whole_encoder_states, final_hidden_state = self.encoder(input_word_indices)
-            vocab_output, decoder_last_state = self.decoder(
-                input_word_indices=output_word_indices,
-                encoder_keys=whole_encoder_states,
-                mask=(input_word_indices != 0),
-                state=final_hidden_state
-            )
-        
-        loss = tf.reduce_sum(self.loss(y_true=output_word_indices[:, 1:], y_pred=vocab_output[:, :-1])*output_mask[:, 1:])
-        variables = self.trainable_variables
-        gradients = tape.gradient(loss, variables)
-        self.optimizer.apply_gradients(zip(gradients, variables))
-        
-        return self._step(data, training=True)
+        self.encoder_input = Input(shape=(max_len_input_seq,))
+        self.encoder = Encoder(self.encoder_input, input_vocab_size, latent_dim) # Encoder layer
+        self.decoder_input = Input(shape=(None,))
+        self.decoder = Decoder(self.decoder_input, target_vocab_size, latent_dim) # Decoder layer
+        self.attn_layer = Attention() # Attention layer
+        self.decoder_dense = TimeDistributed(Dense(target_vocab_size, activation='softmax')) # Dense layer
+        self.model = Model()
+
+    def call(self):
+        encoder_outputs, state_h, state_c = self.encoder()
+        decoder_outputs, _, _ = self.decoder(state_h, state_c)
+        attn_out, _ = self.attn_layer([encoder_outputs, decoder_outputs])
+        decoder_concat_input = Concatenate(axis=-1, name='concat_layer')([decoder_outputs, attn_out])
+        decoder_outputs = self.decoder_dense(decoder_concat_input)
+        self.model(inputs=[self.encoder_input, self.decoder_input], outputs=decoder_outputs)
+        return self.model
