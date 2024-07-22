@@ -2,8 +2,8 @@ import string
 import numpy as np
 import requests
 
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer # type: ignore
+from tensorflow.keras.preprocessing.sequence import pad_sequences # type: ignore
 
 class Dataset():
     def __init__(self):
@@ -126,7 +126,7 @@ class Dataset():
         # Create index2word dictionary
         index2word = tokenizer.index_word
 
-        return tokenizer, word2index, index2word
+        return tokenizer, vocab_size, word2index, index2word
     
     def tokenize(self, tokenizer, sentences, padding='pre'):
         """
