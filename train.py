@@ -1,6 +1,6 @@
+import tensorflow as tf
+
 from data import Dataset
-from model import RNN
-from model import Bidirectional
 from model import Seq2Seq
 
 print("Step 1: Loading data...")
@@ -14,8 +14,8 @@ cleaned_data = dataset.clean_data()
 input_sentences, target_sentences = dataset.split_data()
 # print(input_sentences[:20])
 # print(target_sentences[:20])
-input_tokenizer, input_word2index, input_index2word = dataset.build_tokenizer(input_sentences)
-target_tokenizer, target_word2index, target_index2word= dataset.build_tokenizer(target_sentences)
+input_tokenizer, input_vocab_size, input_word2index, input_index2word = dataset.build_tokenizer(input_sentences)
+target_tokenizer, target_vocab_size, target_word2index, target_index2word= dataset.build_tokenizer(target_sentences)
 # print(input_tokenizer.word_index)
 # print(target_tokenizer.word_index)
 # print(input_word2index)
@@ -35,6 +35,18 @@ encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_out
 print("Step 2: Training model...")
 
 print("Seq2Seq Model:")
-mySeq2Seq = Seq2Seq(input_tokenizer, target_tokenizer, 256, 256)
-mySeq2Seq.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
-mySeq2Seq.fit([encoder_input_data, decoder_input_data], decoder_target_data, batch_size=64, epochs=10, validation_split=0.2)
+mySeq2Seq = Seq2Seq(max_len_input_seq, input_vocab_size, target_vocab_size)
+mySeq2Seq.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model = mySeq2Seq.call()
+history = model.fit(
+    x=[encoder_input_data, decoder_input_data],
+    y=decoder_target_data,
+    batch_size=64,
+    epochs=500
+)
+model_json = model.to_json()
+with open("output/PoemGen.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+model.save_weights("output/PoemGen_model_weight.h5")
+print("Saved model to disk")
