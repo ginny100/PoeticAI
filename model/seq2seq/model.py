@@ -6,21 +6,19 @@ from tensorflow.keras.layers import Attention, Concatenate, TimeDistributed, Den
 from tensorflow.keras.models import Model # type: ignore
 
 class Seq2Seq(tf.keras.Model):
-    def __init__(self, max_len_input_seq, input_vocab_size, target_vocab_size, latent_dim=50):
+    def __init__(self, encoder_input, decoder_input, input_vocab_size, target_vocab_size, latent_dim=50):
         super(Seq2Seq, self).__init__()
-        self.encoder_input = Input(shape=(max_len_input_seq,))
-        self.encoder = Encoder(self.encoder_input, input_vocab_size, latent_dim) # Encoder layer
-        self.decoder_input = Input(shape=(None,))
-        self.decoder = Decoder(self.decoder_input, target_vocab_size, latent_dim) # Decoder layer
+        self.encoder = Encoder(encoder_input, input_vocab_size, latent_dim) # Encoder layer
+        self.decoder = Decoder(decoder_input, target_vocab_size, latent_dim) # Decoder layer
         self.attn_layer = Attention() # Attention layer
         self.decoder_dense = TimeDistributed(Dense(target_vocab_size, activation='softmax')) # Dense layer
-        self.model = Model()
+        
 
-    def call(self):
-        encoder_outputs, state_h, state_c = self.encoder()
-        decoder_outputs, _, _ = self.decoder(state_h, state_c)
+    def call(self, inputs):
+        encoder_input, decoder_input = inputs
+        encoder_outputs, state_h, state_c = self.encoder(encoder_input)
+        decoder_outputs, _, _ = self.decoder([decoder_input, state_h, state_c])
         attn_out, _ = self.attn_layer([encoder_outputs, decoder_outputs])
         decoder_concat_input = Concatenate(axis=-1, name='concat_layer')([decoder_outputs, attn_out])
         decoder_outputs = self.decoder_dense(decoder_concat_input)
-        self.model(inputs=[self.encoder_input, self.decoder_input], outputs=decoder_outputs)
-        return self.model
+        return decoder_outputs

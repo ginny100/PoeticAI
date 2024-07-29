@@ -35,18 +35,17 @@ encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_out
 print("Step 2: Training model...")
 
 print("Seq2Seq Model:")
-mySeq2Seq = Seq2Seq(max_len_input_seq, input_vocab_size, target_vocab_size)
+mySeq2Seq = Seq2Seq(encoder_input_data, decoder_input_data, max_len_input_seq, input_vocab_size, target_vocab_size)
 mySeq2Seq.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-model = mySeq2Seq.call()
-history = model.fit(
+history = mySeq2Seq.fit(
     x=[encoder_input_data, decoder_input_data],
     y=decoder_target_data,
     batch_size=64,
     epochs=500
 )
-model_json = model.to_json()
+model_json = mySeq2Seq.to_json()
 with open("output/PoemGen.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("output/PoemGen_model_weight.h5")
+mySeq2Seq.save_weights("output/PoemGen_model_weight.h5")
 print("Saved model to disk")
