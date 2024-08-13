@@ -22,6 +22,8 @@ target_tokenizer, target_vocab_size, target_word2index, target_index2word= datas
 # print(target_word2index)
 input_sequences, max_len_input_seq = dataset.tokenize(input_tokenizer, input_sentences)
 target_sequences, max_len_target_seq = dataset.tokenize(target_tokenizer, target_sentences)
+print("Train - max_len_input_seq", max_len_input_seq)
+print("Train - max_len_target_seq", max_len_target_seq)
 # print(input_sequences[:10])
 # print(target_sequences[:10])
 encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_outputs(input_word2index, target_word2index, max_len_input_seq, max_len_target_seq)
@@ -35,7 +37,7 @@ encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_out
 print("Step 2: Training model...")
 
 print("Seq2Seq Model:")
-mySeq2Seq = Seq2Seq(encoder_input_data, decoder_input_data, max_len_input_seq, input_vocab_size, target_vocab_size)
+mySeq2Seq = Seq2Seq(encoder_input_data, decoder_input_data, input_vocab_size, target_vocab_size)
 mySeq2Seq.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 history = mySeq2Seq.fit(
     x=[encoder_input_data, decoder_input_data],
