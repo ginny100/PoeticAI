@@ -22,26 +22,26 @@ target_tokenizer, target_vocab_size, target_word2index, target_index2word= datas
 # print(target_word2index)
 input_sequences, max_len_input_seq = dataset.tokenize(input_tokenizer, input_sentences)
 target_sequences, max_len_target_seq = dataset.tokenize(target_tokenizer, target_sentences)
-print("Train - max_len_input_seq", max_len_input_seq)
-print("Train - max_len_target_seq", max_len_target_seq)
+# print("Train - max_len_input_seq", max_len_input_seq) # 6
+# print("Train - max_len_target_seq", max_len_target_seq) # 10
 # print(input_sequences[:10])
 # print(target_sequences[:10])
 encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_outputs(input_word2index, target_word2index, max_len_input_seq, max_len_target_seq)
-# print("Encoder Input Data:")
-# print(encoder_input_data)
-# print("Decoder Input Data:")
-# print(decoder_input_data)
-# print("Decoder Target Data:")
-# print(decoder_target_data)
+# print("Train - encoder_input_data", encoder_input_data.shape) # (1629, 6) -> (num input sentences, max_len_input_seq)
+# print("Train - decoder_input_data", decoder_input_data.shape) # (1629, 10) -> (num input sentences, max_len_target_seq)
+# print("Train - decoder_target_data", decoder_target_data.shape) # (1629, 10, 1987) -> (num input sentences, max_len_target_seq, target_vocab_size)
+
+# Ensure decoder_target_data is in the correct shape (batch_size, sequence_length)
+decoder_target_data = decoder_target_data.argmax(axis=-1)
 
 print("Step 2: Training model...")
 
 print("Seq2Seq Model:")
-mySeq2Seq = Seq2Seq(encoder_input_data, decoder_input_data, input_vocab_size, target_vocab_size)
-mySeq2Seq.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+mySeq2Seq = Seq2Seq(input_vocab_size, target_vocab_size)
+mySeq2Seq.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 history = mySeq2Seq.fit(
-    x=[encoder_input_data, decoder_input_data],
-    y=decoder_target_data,
+    x=[encoder_input_data, decoder_input_data], # (1629, 6) x (1629, 10) -> (num input sentences, max_len_input_seq) x (num input sentences, max_len_target_seq)
+    y=decoder_target_data, # (1629, 10, 1987) -> (num input sentences, max_len_target_seq, target_vocab_size)
     batch_size=64,
     epochs=500
 )
