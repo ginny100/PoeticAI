@@ -120,7 +120,7 @@ class Dataset():
         tokenizer.fit_on_texts(sentences)
         # Determine the vocabulary size
         vocab_size = len(tokenizer.word_index) + 1
-        print('Vocabulary size: %d' % vocab_size)
+        # print('Data - vocab_size', vocab_size)
         # Create word2index dictionary
         word2index = tokenizer.word_index
         # Create index2word dictionary
@@ -142,13 +142,19 @@ class Dataset():
         Create Encoder Input, Decoder Input, and Decoder Output
         """
         target_vocab_size = len(target_word2index) + 1
+        #print("Data - target_vocab_size", target_vocab_size) # 1987
+        # print("Data - input_word2index has length of", len(input_word2index)) # dict - 1865
+        # print("Data - target_word2index has length of", len(target_word2index)) # dict - 1986
+        # print("Data - max_len_input_seq", max_len_input_seq) # 6
+        # print("Data - max_len_target_seq", max_len_target_seq) # 10
+        # print("Data - self.input_sentences contains {} 6-word sentences".format(len(self.input_sentences))) # list - 1629 input sentences
 
         self.encoder_input_data = np.zeros((len(self.input_sentences), max_len_input_seq), dtype='float32')
-        # print(self.encoder_input_data.shape)
+        # print("Data - encoder_input_data", self.encoder_input_data.shape) # (1629, 6) -> (num input sentences, max_len_input_seq)
         self.decoder_input_data = np.zeros((len(self.input_sentences), max_len_target_seq), dtype='float32')
-        # print(self.decoder_input_data.shape)
+        # print("Data - decoder_input_data", self.decoder_input_data.shape) # (1629, 10) -> (num input sentences, max_len_target_seq)
         self.decoder_target_data = np.zeros((len(self.input_sentences), max_len_target_seq, target_vocab_size), dtype='float32')
-        # print(self.decoder_target_data.shape)
+        # print("Data - decoder_target_data", self.decoder_target_data.shape) # (1629, 10, 1987) -> (num input sentences, max_len_target_seq, target_vocab_size)
 
         for i, (input_text, target_text) in enumerate(zip(self.input_sentences, self.target_sentences)):
             for t, word in enumerate(input_text.split()):
