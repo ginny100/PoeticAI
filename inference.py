@@ -3,7 +3,7 @@ import numpy as np
 import argparse
 import os
 from data import Dataset
-from beam_search import BeamSearch
+from model.beam_search import BeamSearch
 import matplotlib.pyplot as plt
 
 # Set seeds for reproducibility

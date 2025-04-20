@@ -42,11 +42,42 @@ This project includes two different approaches for Vietnamese poem generation:
 
 The original model using LSTM for sequential poem generation. Best for simpler, shorter poem generation.
 
-To train and use the LSTM model, refer to the basic scripts:
+#### Training an LSTM Model
+
+To train an LSTM model for poem generation:
+
 ```bash
 python train.py --dataset dataset/truyenkieu.txt --epochs 50
+```
+
+Options:
+- `--dataset`: Path to the dataset file (default: 'dataset/tonghop.txt')
+- `--model_dir`: Directory to save the model (default: 'model')
+- `--epochs`: Number of training epochs (default: 50)
+- `--batch_size`: Training batch size (default: 64)
+- `--units`: Number of LSTM units (default: 128)
+- `--embedding_dim`: Dimension of the embedding layer (default: 256)
+- `--dropout`: Dropout rate (default: 0.3)
+- `--learning_rate`: Learning rate for optimizer (default: 0.001)
+
+#### Generating Poems with LSTM
+
+To generate poems using a pre-trained LSTM model:
+
+```bash
 python inference.py --input "hạ về xanh biếc trên sông"
 ```
+
+Options:
+- `--input`: Input text to start the poem generation (required)
+- `--mode`: Generation mode: fixed (8 words) or variable length (default: 'fixed')
+- `--output_length`: Number of words to generate in fixed mode (default: 8)
+- `--max_length`: Maximum number of words in variable mode (default: 50)
+- `--model_dir`: Directory containing encoder and decoder models (default: 'model')
+- `--dataset_path`: Path to dataset for tokenizer creation (default: 'dataset/truyenkieu.txt')
+- `--search`: Search strategy: beam or greedy (default: 'beam')
+- `--beam_width`: Beam width for beam search, ignored for greedy search (default: 5)
+- `--temperature`: Temperature for sampling (higher = more random) if using greedy search
 
 ## Transformer-based Poem Generation
 

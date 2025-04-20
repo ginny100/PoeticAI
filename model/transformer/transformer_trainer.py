@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import time
 import matplotlib.pyplot as plt
-from model.transformer_class import create_transformer, create_optimizer
+from model.transformer.transformer_class import create_transformer, create_optimizer
 
 
 class TransformerTrainer:
