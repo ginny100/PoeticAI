@@ -1,0 +1,5 @@
+Input vocabulary size: 2313
+Target vocabulary size: 2387
+Max input sequence length: 8
+Max target sequence length: 11
+Dataset path: dataset/tonghop.txt

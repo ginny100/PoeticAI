@@ -15,16 +15,16 @@ class RNN(tf.keras.Model):
         self.lstm = LSTM(units, embedding_size)
         self.classification_model = tf.keras.models.Sequential([
             tf.keras.layers.Dense(64, input_shape=(units,), activation='relu'),
-            tf.keras.layers.Dense(1, activation='softmax')
+            tf.keras.layers.Dense(vocab_size, activation='softmax')
         ])
 
     def call(self, sentence):
         batch_size = tf.shape(sentence)[0]
         # Hidden state and Context state initialization
-        pre_layer = tf.stack(
+        pre_layer = tf.stack([
             tf.zeros([batch_size, self.units]),
             tf.zeros([batch_size, self.units])
-        )
+        ])
         # Embedding layer
         embedded_sentence = self.embedding(sentence)
         # LSTM + prev(Hidden state, Context state) -> curr(Hidden state, Context state)

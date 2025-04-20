@@ -6,8 +6,8 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 class Dataset():
-    def __init__(self):
-        self.dataPath = None
+    def __init__(self, data_path=None):
+        self.dataPath = data_path
         self.data_list = None
         self.input_sentences = []
         self.target_sentences = []
@@ -161,3 +161,19 @@ class Dataset():
                     self.decoder_target_data[i, t - 1, target_word2index[word]] = 1
         
         return self.encoder_input_data, self.decoder_input_data, self.decoder_target_data
+
+if __name__ == "__main__":
+    print("Step 1: Loading data...")
+
+    dataset = Dataset()
+    dataset.download(url='https://raw.githubusercontent.com/tiensu/Natural_Language_Processing/master/Text-Generation/dataset/truyenkieu.txt')
+    data_list = dataset.load_data()
+    cleaned_data = dataset.clean_data()
+    input_sentences, target_sentences = dataset.split_data()
+    input_tokenizer, input_word2index, input_index2word = dataset.build_tokenizer(input_sentences)
+    target_tokenizer, target_word2index, target_index2word= dataset.build_tokenizer(target_sentences)
+    input_sequences, max_len_input_seq = dataset.tokenize(input_tokenizer, input_sentences)
+    target_sequences, max_len_target_seq = dataset.tokenize(target_tokenizer, target_sentences)
+    encoder_input_data, decoder_input_data, decoder_target_data = dataset.create_outputs(input_word2index, target_word2index, max_len_input_seq, max_len_target_seq)
+
+    print("Load data successfully!")

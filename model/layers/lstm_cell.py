@@ -5,8 +5,8 @@ class LSTM(tf.keras.layers.Layer):
         super(LSTM, self).__init__()
         self.units = units
         self.inp_shape = inp_shape
-        self.W = self.add_weight("W", shape=(4, self.units, self.inp_shape))
-        self.U = self.add_weight("U", shape=(4, self.units, self.units))
+        self.W = self.add_weight(name="W", shape=(4, self.units, self.inp_shape))
+        self.U = self.add_weight(name="U", shape=(4, self.units, self.units))
     
     def call(self, pre_layer, x):
         pre_h, pre_c = tf.unstack(pre_layer)

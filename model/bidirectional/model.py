@@ -15,7 +15,7 @@ class Bidirectional(tf.keras.Model):
         self.lstm_bw = LSTM(units, embedding_size)  # Backward LSTM
         self.classification_model = tf.keras.models.Sequential([
             tf.keras.layers.Dense(64, input_shape=(2 * units,), activation='relu'),
-            tf.keras.layers.Dense(1, activation='softmax')
+            tf.keras.layers.Dense(vocab_size, activation='softmax')
         ])
 
     def call(self, sentence):

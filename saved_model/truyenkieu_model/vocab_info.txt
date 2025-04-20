@@ -1,0 +1,5 @@
+Input vocabulary size: 1866
+Target vocabulary size: 1987
+Max input sequence length: 6
+Max target sequence length: 10
+Dataset path: dataset/truyenkieu.txt
