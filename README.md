@@ -129,24 +129,6 @@ Options:
 - `--max_words`: Maximum number of words in the generated poem
 - `--direct`: Use direct generation method (similar to training process)
 
-## Difference between LSTM and Transformer
-
-The Transformer-based poem generation offers several advantages over the LSTM approach:
-
-1. **Parallel processing**: Transformers process the entire sequence in parallel, leading to faster training.
-2. **Better long-range dependencies**: The attention mechanism captures relationships between words regardless of their distance in the sequence.
-3. **More contextual awareness**: Multi-head attention allows the model to focus on different aspects of the input simultaneously.
-4. **Improved quality**: The combination of these features typically results in higher quality poem generation, especially for longer passages.
-
-## Transformer Architecture
-
-The Transformer architecture follows the original "Attention is All You Need" paper, with:
-- Multi-head attention mechanism
-- Position-wise feed-forward networks
-- Layer normalization
-- Residual connections
-- Positional encoding
-
 ## Acknowledgments
 
 - The Transformer architecture is based on the paper ["Attention is All You Need"](https://arxiv.org/abs/1706.03762)
