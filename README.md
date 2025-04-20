@@ -66,7 +66,7 @@ The Transformer architecture leverages attention mechanisms to create high-quali
 To train a new Transformer model for poem generation:
 
 ```bash
-python train_transformer.py --dataset dataset/tonghop.txt --epochs 50 --batch_size 64
+python train_transformer.py --dataset dataset/truyenkieu.txt --epochs 50 --batch_size 64
 ```
 
 Options:
