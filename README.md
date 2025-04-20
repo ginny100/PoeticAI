@@ -138,26 +138,6 @@ The Transformer-based poem generation offers several advantages over the LSTM ap
 3. **More contextual awareness**: Multi-head attention allows the model to focus on different aspects of the input simultaneously.
 4. **Improved quality**: The combination of these features typically results in higher quality poem generation, especially for longer passages.
 
-## Examples
-
-Input:
-```
-hạ về xanh biếc trên sông
-```
-
-Output with Transformer (beam search, width=5):
-```
-nước chảy mây trôi lặng lẽ trôi
-hoa rơi cánh mỏng lá vàng rơi
-tình xưa nghĩa cũ còn ghi nhớ
-```
-
-Output with LSTM (greedy search):
-```
-nước chảy mây trôi lặng lẽ trôi
-hoa tàn cỏ úa dưới chân đồi
-```
-
 ## Transformer Architecture
 
 The Transformer architecture follows the original "Attention is All You Need" paper, with:
